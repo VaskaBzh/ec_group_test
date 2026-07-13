@@ -1,0 +1,67 @@
+// Prisma schema for the purchase-requests application.
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Роль пользователя в системе.
+enum UserRole {
+  /// Заявитель: создаёт заявки на покупку.
+  Requester
+  /// Проверяющий: рассматривает заявки (подтверждает/отклоняет).
+  Reviewer
+}
+
+/// Статус заявки на покупку.
+enum RequestStatus {
+  /// Ожидает рассмотрения.
+  Pending
+  /// Подтверждена проверяющим.
+  Approved
+  /// Отклонена проверяющим.
+  Rejected
+}
+
+/// Пользователь приложения (заявитель или проверяющий).
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  /// Заявки, созданные этим пользователем.
+  requests PurchaseRequest[]
+
+  @@map("users")
+}
+
+/// Заявка на покупку, поданная заявителем.
+model PurchaseRequest {
+  id        String        @id @default(uuid())
+  title     String
+  quantity  Int
+  amount    Decimal       @db.Decimal(12, 2)
+  comment   String?
+  status    RequestStatus @default(Pending)
+  authorId  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  /// Автор заявки.
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Индексы под сортировку и фильтрацию списка заявок.
+  @@index([createdAt])
+  @@index([status])
+  @@index([amount])
+  @@index([authorId])
+  @@map("purchase_requests")
+}

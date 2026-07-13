@@ -13,10 +13,12 @@ POSTGRES_DB      ?= purchase_requests
 POSTGRES_PORT    ?= 5432
 COMPOSE          ?= docker compose
 SERVICE          ?= postgres
+BACKEND_DIR      ?= backend
 
 .DEFAULT_GOAL := help
 
-.PHONY: help init up down stop start restart ps logs psql shell health wait reset destroy
+.PHONY: help init up down stop start restart ps logs psql shell health wait reset destroy \
+	backend-install prisma-generate migrate seed db-reset studio backend-setup
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -67,3 +69,26 @@ reset: down up ## Restart the stack (keeps data)
 
 destroy: ## Stop containers and DELETE the data volume (full DB wipe)
 	$(COMPOSE) down -v
+
+# --- Backend / Prisma (NestJS app in $(BACKEND_DIR)) ---
+
+backend-install: ## Install backend dependencies
+	cd $(BACKEND_DIR) && npm install
+
+prisma-generate: ## Generate the Prisma client
+	cd $(BACKEND_DIR) && npm run prisma:generate
+
+migrate: ## Apply Prisma migrations in dev mode (prisma migrate dev)
+	cd $(BACKEND_DIR) && npm run prisma:migrate
+
+seed: ## Seed the database with demo data (prisma db seed)
+	cd $(BACKEND_DIR) && npm run prisma:seed
+
+db-reset: ## Reset the DB, re-apply migrations and re-seed (prisma migrate reset)
+	cd $(BACKEND_DIR) && npm run prisma:reset
+
+studio: ## Open Prisma Studio
+	cd $(BACKEND_DIR) && npm run prisma:studio
+
+backend-setup: up wait backend-install migrate seed ## Bring up the DB, install deps, migrate and seed
+	@echo "Database is up, migrated and seeded."
