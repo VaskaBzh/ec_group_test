@@ -14,11 +14,13 @@ POSTGRES_PORT    ?= 5432
 COMPOSE          ?= docker compose
 SERVICE          ?= postgres
 BACKEND_DIR      ?= backend
+FRONTEND_DIR     ?= frontend
 
 .DEFAULT_GOAL := help
 
 .PHONY: help init up down stop start restart ps logs psql shell health wait reset destroy \
-	backend-install prisma-generate migrate seed db-reset studio backend-setup
+	backend-install prisma-generate migrate seed db-reset studio backend-setup \
+	frontend-install dev\:all
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -92,3 +94,17 @@ studio: ## Open Prisma Studio
 
 backend-setup: up wait backend-install migrate seed ## Bring up the DB, install deps, migrate and seed
 	@echo "Database is up, migrated and seeded."
+
+# --- Frontend (Vite/Vue app in $(FRONTEND_DIR)) ---
+
+frontend-install: ## Install frontend dependencies
+	cd $(FRONTEND_DIR) && npm install
+
+# --- Full local development stack ---
+
+dev\:all: up wait ## Start the DB, then run backend and frontend dev servers together (Ctrl+C stops both)
+	@echo "Starting backend ($(BACKEND_DIR)) and frontend ($(FRONTEND_DIR)) dev servers. Press Ctrl+C to stop both."
+	@trap 'kill 0' INT TERM EXIT; \
+	( cd $(BACKEND_DIR) && npm run start:dev ) & \
+	( cd $(FRONTEND_DIR) && npm run dev ) & \
+	wait
