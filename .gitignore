@@ -79,3 +79,24 @@ coverage/
 *.sw?
 .DS_Store
 Thumbs.db
+
+# ------------------------------------------------------------
+# Local tooling & scaffolding (not part of the project)
+# ------------------------------------------------------------
+.agents/
+.claude/
+.ai-factory/
+.ai-factory.json
+.mcp.json
+skills-lock.json
+AGENTS.md
+
+# ------------------------------------------------------------
+# Temporary & misc
+# ------------------------------------------------------------
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+*~
