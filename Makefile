@@ -1,0 +1,69 @@
+# Makefile for managing the PostgreSQL stack via docker compose.
+# Intended to run from WSL (bash). Requires Docker Desktop with WSL integration
+# enabled, or docker + docker compose installed inside the WSL distro.
+
+# Load variables from .env if present (fallback defaults below).
+ifneq (,$(wildcard .env))
+include .env
+export
+endif
+
+POSTGRES_USER    ?= app
+POSTGRES_DB      ?= purchase_requests
+POSTGRES_PORT    ?= 5432
+COMPOSE          ?= docker compose
+SERVICE          ?= postgres
+
+.DEFAULT_GOAL := help
+
+.PHONY: help init up down stop start restart ps logs psql shell health wait reset destroy
+
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+		| sort \
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+
+init: ## Create .env from .env.example if it does not exist
+	@test -f .env || (cp .env.example .env && echo "Created .env from .env.example")
+
+up: init ## Start PostgreSQL in the background
+	$(COMPOSE) up -d
+
+down: ## Stop and remove containers (keeps the data volume)
+	$(COMPOSE) down
+
+stop: ## Stop containers without removing them
+	$(COMPOSE) stop
+
+start: ## Start previously stopped containers
+	$(COMPOSE) start
+
+restart: ## Restart the PostgreSQL container
+	$(COMPOSE) restart $(SERVICE)
+
+ps: ## Show container status
+	$(COMPOSE) ps
+
+logs: ## Follow PostgreSQL logs
+	$(COMPOSE) logs -f $(SERVICE)
+
+psql: ## Open a psql session inside the container
+	$(COMPOSE) exec $(SERVICE) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
+
+shell: ## Open a shell inside the container
+	$(COMPOSE) exec $(SERVICE) sh
+
+health: ## Show the container health status
+	@$(COMPOSE) ps --format 'table {{.Name}}\t{{.Status}}'
+
+wait: ## Block until PostgreSQL is ready to accept connections
+	@echo "Waiting for PostgreSQL..."
+	@until $(COMPOSE) exec -T $(SERVICE) pg_isready -U $(POSTGRES_USER) -d $(POSTGRES_DB) >/dev/null 2>&1; do \
+		sleep 1; \
+	done
+	@echo "PostgreSQL is ready."
+
+reset: down up ## Restart the stack (keeps data)
+
+destroy: ## Stop containers and DELETE the data volume (full DB wipe)
+	$(COMPOSE) down -v

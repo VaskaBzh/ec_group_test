@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "nestjs-best-practices": {
+      "source": "kadajett/agent-nestjs-skills",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "3cc2e763f1e2923cce1b5173dd9cafbb0aca8df1644102c82dde263375de1ac7"
+    },
+    "prisma-database-setup": {
+      "source": "prisma/skills",
+      "sourceType": "github",
+      "skillPath": "prisma-database-setup/SKILL.md",
+      "computedHash": "0911d9454bd48df3badd23a50fd90a280eabb15dcbd472c14e7b729075dadefb"
+    },
+    "prisma-postgres": {
+      "source": "prisma/skills",
+      "sourceType": "github",
+      "skillPath": "prisma-postgres/SKILL.md",
+      "computedHash": "fd8f16f26e2cce1dd3e8e7916dcddbffddf295003eba86141f53e9d2d9d2bc0c"
+    },
+    "vue": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vue/SKILL.md",
+      "computedHash": "f72b54618560c53d65740515ded5bb833750c4574dbe961fd21f022bd2b31a74"
+    }
+  }
+}
