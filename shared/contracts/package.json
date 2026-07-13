@@ -1,0 +1,22 @@
+{
+  "name": "@ec-group/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared Zod schemas and inferred types for the purchase-request API, consumed by the NestJS backend and the Vue 3 frontend.",
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
