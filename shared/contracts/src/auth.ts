@@ -53,3 +53,17 @@ export const LoginInputSchema = z.object({
 
 /** Login payload, inferred from {@link LoginInputSchema}. */
 export type LoginInput = z.infer<typeof LoginInputSchema>;
+
+/**
+ * Payload for exchanging a refresh token for a fresh token pair.
+ *
+ * Carries the opaque refresh token issued at login/registration or by a
+ * previous refresh. The same shape is reused by the logout endpoint to identify
+ * the session being invalidated.
+ */
+export const RefreshInputSchema = z.object({
+  refreshToken: z.string().min(1, { message: 'A refresh token is required' }),
+});
+
+/** Refresh/logout payload, inferred from {@link RefreshInputSchema}. */
+export type RefreshInput = z.infer<typeof RefreshInputSchema>;

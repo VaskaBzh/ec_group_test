@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
+import { RefreshTokenRepository } from './repositories/refresh-token.repository';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import type { Env } from '../../shared/config/env.validation';
 
@@ -25,13 +26,13 @@ import type { Env } from '../../shared/config/env.validation';
       useFactory: (configService: ConfigService<Env, true>) => ({
         secret: configService.get('JWT_SECRET', { infer: true }),
         signOptions: {
-          expiresIn: configService.get('JWT_EXPIRES_IN', { infer: true }),
+          expiresIn: configService.get('JWT_ACCESS_TTL', { infer: true }),
         },
       }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, RefreshTokenRepository, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

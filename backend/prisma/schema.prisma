@@ -40,7 +40,34 @@ model User {
   /// Заявки, созданные этим пользователем.
   requests PurchaseRequest[]
 
+  /// Refresh-токены активных и отозванных сессий пользователя.
+  refreshTokens RefreshToken[]
+
   @@map("users")
+}
+
+/// Refresh-токен сессии пользователя.
+///
+/// В базе хранится только SHA-256-хеш значения токена (`tokenHash`), а не сам
+/// токен: утечка таблицы не раскрывает действующие refresh-токены. Ротация и
+/// разлогин выполняются проставлением `revokedAt`; строки не удаляются, чтобы
+/// можно было обнаружить повторное использование уже отозванного токена.
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  /// SHA-256-хеш значения refresh-токена (уникален, по нему идёт поиск).
+  tokenHash String    @unique
+  /// Момент истечения срока действия токена.
+  expiresAt DateTime
+  /// Момент отзыва (ротация или logout); `null` — токен ещё активен.
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  /// Владелец токена.
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }
 
 /// Заявка на покупку, поданная заявителем.

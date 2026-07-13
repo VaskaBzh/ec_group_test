@@ -49,14 +49,20 @@ export const PurchaseRequestDtoSchema = z.object({
 export type PurchaseRequestDto = z.infer<typeof PurchaseRequestDtoSchema>;
 
 /**
- * JWT bundle issued on successful authentication.
+ * Token bundle issued on successful authentication or refresh.
  *
- * `refreshToken` is optional so the backend can operate with an access token
- * only, or add refresh-token rotation later without changing the contract.
+ * Pairs a short-lived signed JWT `accessToken` with a longer-lived opaque
+ * `refreshToken`. Both expiry timestamps are exposed so the client can schedule
+ * a silent refresh before the access token lapses and drop the session once the
+ * refresh token itself expires.
  */
 export const AuthTokensDtoSchema = z.object({
   accessToken: z.string(),
-  refreshToken: z.string().optional(),
+  refreshToken: z.string(),
+  /** Instant the access token stops being accepted. */
+  accessTokenExpiresAt: isoDateTimeSchema,
+  /** Instant the refresh token stops being accepted. */
+  refreshTokenExpiresAt: isoDateTimeSchema,
 });
 
 /** Issued token bundle, inferred from {@link AuthTokensDtoSchema}. */

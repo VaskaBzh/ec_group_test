@@ -22,8 +22,14 @@ export const envSchema = z.object({
     .string()
     .min(16, { message: 'JWT_SECRET must be at least 16 characters long' }),
 
-  /** Access-token lifetime accepted by `@nestjs/jwt` (e.g. `1h`, `900s`). */
-  JWT_EXPIRES_IN: z.string().default('1h'),
+  /** Access-token lifetime accepted by `@nestjs/jwt` (e.g. `15m`, `900s`). */
+  JWT_ACCESS_TTL: z.string().default('15m'),
+
+  /**
+   * Refresh-token lifetime (e.g. `7d`, `12h`). Parsed into an absolute expiry
+   * when a refresh token is issued and stored alongside its hash.
+   */
+  JWT_REFRESH_TTL: z.string().default('7d'),
 
   /**
    * Allowed CORS origins. `*` allows any origin; a comma-separated list

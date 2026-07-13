@@ -20,9 +20,10 @@ export type { UserRole, RequestStatus } from './enums';
 export {
   RegisterInputSchema,
   LoginInputSchema,
+  RefreshInputSchema,
   PASSWORD_MINIMUM_LENGTH,
 } from './auth';
-export type { RegisterInput, LoginInput } from './auth';
+export type { RegisterInput, LoginInput, RefreshInput } from './auth';
 
 // Purchase request input schema.
 export {
